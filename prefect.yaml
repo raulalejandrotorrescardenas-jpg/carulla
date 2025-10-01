@@ -14,7 +14,4 @@ build:
   - prefect.deployments.steps.pip_install_requirements:
       directory: .
       requirements_file: requirements.txt
-      packages:
-        - requests
-        - pandas
-        - prefect
+
