@@ -1,18 +1,19 @@
-from datetime import datetime, timedelta
-import requests
-import pandas as pd
 from prefect import flow, task
-import os
+
 
 
 @task
 def descargar_datos_dia_anterior():
+    from datetime import datetime, timedelta
+    import requests
+    import pandas as pd
+    import os
 
     antier = datetime.today() - timedelta(days=2)
     fecha_inicio = antier.strftime("%Y-%m-%dT00:00:00")
     fecha_fin = (antier + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00")
 
-# 🧠 Verificamos que las fechas estén correctas
+# Verificamos que las fechas estén correctas
     print(" Fecha inicio:", fecha_inicio)
     print(" Fecha fin:", fecha_fin)
 
@@ -23,7 +24,7 @@ def descargar_datos_dia_anterior():
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        print(f"✅ Registros descargados: {len(data)}")
+        print(f" Registros descargados: {len(data)}")
 
     #  4. Convertir a DataFrame
         df = pd.DataFrame(data)
@@ -63,7 +64,7 @@ def descargar_datos_dia_anterior():
 
     # Guardar el CSV correctamente
     df.to_csv(ruta_archivo, index=False, encoding="utf-8-sig")
-    print(f"✅ Datos guardados en: {ruta_archivo}")
+    print(f" Datos guardados en: {ruta_archivo}")
 
 
 
