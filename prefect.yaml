@@ -9,7 +9,12 @@ pull:
   - prefect.deployments.steps.git_clone:
       repository: "https://github.com/raulalejandrotorrescardenas-jpg/carulla"
       branch: "main"
+
 build:
   - prefect.deployments.steps.pip_install_requirements:
       directory: .
       requirements_file: requirements.txt
+      packages:
+        - requests
+        - pandas
+        - prefect
