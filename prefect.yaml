@@ -1,0 +1,14 @@
+name: descarga_diaria_project
+prefect-version: 3.0.0
+
+flows:
+  - name: descarga_diaria_6am
+    entrypoint: descarga_diaria.py:flujo_diario
+
+pull:
+  - prefect.deployments.steps.git_clone:
+      repository: "https://github.com/raulalejandrotorrescardenas-jpg/carulla"
+      branch: "main"
+build:
+  - prefect.deployments.steps.pip_install_requirements:
+      requirements_file: ./requirements.txt
