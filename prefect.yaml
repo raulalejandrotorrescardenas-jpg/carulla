@@ -14,22 +14,18 @@ deployments:
       name: descarga-managed
       work_queue_name: default
       job_variables:
-        # La imagen base puede ser cualquiera de Prefect que uses.
-        image: prefecthq/prefect:3-python3.12 
+        image: prefecthq/prefect:3-python3.12
         env:
           PREFECT_LOGGING_LEVEL: INFO
-    # 🚨 LA SOLUCIÓN ESTÁ AQUÍ 🚨
-    # Estos pasos se ejecutan DESPUÉS de descargar el código de Git y ANTES del flujo.
+          # 🚨 CORRECCIÓN CLAVE: FORZAR UTF-8 
+          PYTHONIOENCODING: utf-8
+    
+    #  PULL_STEPS para instalar dependencias (pandas) 
     pull_steps:
       - prefect.deployments.steps.run_shell_script:
           script: |
-            echo "🔧 Instalando dependencias..."
-            # Asumiendo que tienes un requirements.txt en tu repo:
-            # pip install --no-cache-dir -r requirements.txt 
-            # O instalando directamente las librerías:
+            echo " Instalando dependencias..."
+            # Asegúrate de que esta línea contenga todas las librerías necesarias
             pip install --no-cache-dir requests pandas openpyxl
-            echo "✅ Dependencias instaladas"
-
-
-
-
+            echo " Dependencias instaladas, ejecutando flujo..."
+            
