@@ -1,19 +1,19 @@
 from prefect import flow, task
 
 
-
 @task
 def descargar_datos_dia_anterior():
     from datetime import datetime, timedelta
     import requests
     import pandas as pd
     import os
+    import json #  Necesario para el manejo explícito de la codificación JSON
 
     antier = datetime.today() - timedelta(days=2)
     fecha_inicio = antier.strftime("%Y-%m-%dT00:00:00")
     fecha_fin = (antier + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00")
 
-# Verificamos que las fechas estén correctas
+#  Verificamos que las fechas estén correctas
     print(" Fecha inicio:", fecha_inicio)
     print(" Fecha fin:", fecha_fin)
 
@@ -23,7 +23,21 @@ def descargar_datos_dia_anterior():
 #  3. Hacer el request
     response = requests.get(url)
     if response.status_code == 200:
-        data = response.json()
+        
+        #  CÓDIGO CORREGIDO PARA EL ERROR DE CODIFICACIÓN (CHARMAP) 
+        try:
+            # Decodifica el contenido binario de la respuesta como UTF-8
+            contenido_utf8 = response.content.decode('utf-8')
+            # Carga el string decodificado como JSON
+            data = json.loads(contenido_utf8)
+        except UnicodeDecodeError:
+            # Opción de respaldo si UTF-8 falla (aunque es raro)
+            contenido_latin1 = response.content.decode('latin-1')
+            data = json.loads(contenido_latin1)
+        except Exception as e:
+            print(f" Error al procesar JSON: {e}")
+            return # Detiene la tarea si el JSON es inválido
+            
         print(f" Registros descargados: {len(data)}")
 
     #  4. Convertir a DataFrame
@@ -62,10 +76,9 @@ def descargar_datos_dia_anterior():
     nombre_archivo = f"registros_{antier.strftime('%Y-%m-%d')}.csv"
     ruta_archivo = os.path.join("output", nombre_archivo)
 
-    # Guardar el CSV correctamente
+    # Guardar el CSV correctamente (el utf-8-sig es ideal para Excel)
     df.to_csv(ruta_archivo, index=False, encoding="utf-8-sig")
     print(f" Datos guardados en: {ruta_archivo}")
-
 
 
 @flow(name="Descargar JSON diario", log_prints=True)
