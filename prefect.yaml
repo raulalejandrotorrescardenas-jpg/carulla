@@ -1,17 +1,29 @@
-name: descarga_diaria_project
+# prefect.yaml
+name: carulla
 prefect-version: 3.0.0
 
+# Definición de los flujos
 flows:
-  - name: descarga_diaria_6am
+  - name: flujo_diario
     entrypoint: descarga_diaria.py:flujo_diario
 
-pull:
-  - prefect.deployments.steps.git_clone:
-      repository: "https://github.com/raulalejandrotorrescardenas-jpg/carulla"
-      branch: "main"
-
-build:
-  - prefect.deployments.steps.pip_install_requirements:
-      directory: .
-      requirements_file: requirements.txt
-
+# Configuración de despliegue
+deployments:
+  - name: descarga_diaria_6am
+    flow_name: flujo_diario
+    schedule:
+      cron: "0 6 * * *"
+    parameters: {}
+    work_pool:
+      name: carulla-pool
+      work_queue_name: default
+      job_variables:
+        env:
+          PREFECT_LOGGING_LEVEL: INFO
+        image: python:3.12-slim
+        command:
+          - /bin/bash
+          - -c
+          - |
+            pip install --no-cache-dir prefect==3.0.0 requests pandas
+            python -m prefect.engine
