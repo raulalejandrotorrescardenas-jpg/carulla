@@ -1,3 +1,4 @@
+# prefect.yaml (Versión de Diagnóstico y Ejecución Final)
 name: carulla
 prefect-version: 3.0.0
 
@@ -7,27 +8,28 @@ flows:
 
 deployments:
   - name: descarga_diaria_6am
-    flow_name: flujo_diario
-    schedule:
-      cron: "0 6 * * *"
+    # ... (omitido por espacio)
     work_pool:
       name: descarga-managed
       work_queue_name: default
       job_variables:
-        # Usas una imagen de Prefect 3.12, que es la correcta
         image: prefecthq/prefect:3-python3.12
         env:
           PREFECT_LOGGING_LEVEL: INFO
-          # Importante para los errores de codificación previos
           PYTHONIOENCODING: utf-8
-    
-    # 🚨 PULL_STEPS: ESTE BLOQUE ES LA CLAVE DE LA INSTALACIÓN 🚨
-    pull_steps:
-      - prefect.deployments.steps.run_shell_script:
-          script: |
-            echo "🔧 Iniciando instalación de dependencias..."
-            # Forzamos a usar el binario de Python dentro del entorno. 
-            # Esto es más robusto que solo 'pip'.
-            /usr/local/bin/python -m pip install --no-cache-dir requests pandas openpyxl
-            echo "✅ Dependencias instaladas. Continuará la ejecución del flujo."
+        # 🚨 COMANDO DE DIAGNÓSTICO E INSTALACIÓN 🚨
+        command:
+          - /bin/bash
+          - -c
+          - |
+            echo "🔧 Paso 1: Iniciando Instalación..."
+            /usr/local/bin/python -m pip install requests pandas openpyxl && \
+            
+            echo "🔎 Paso 2: Verificando Instalación..."
+            /usr/local/bin/python -c "import pandas; import requests; print('✅ VERIFICACIÓN OK: Pandas y Requests importados con éxito.')" && \
+            
+            echo "🚀 Paso 3: Ejecutando Flujo..."
+            python -m prefect.engine
+            
+            echo "✅ Flujo Finalizado."
 
