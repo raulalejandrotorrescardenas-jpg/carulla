@@ -15,7 +15,7 @@ deployments:
       cron: "0 6 * * *"
     parameters: {}
     work_pool:
-      name: carulla-pool
+      name: descarga-managed
       work_queue_name: default
       job_variables:
         env:
@@ -27,3 +27,4 @@ deployments:
           - |
             pip install --no-cache-dir prefect==3.0.0 requests pandas
             python -m prefect.engine
+
