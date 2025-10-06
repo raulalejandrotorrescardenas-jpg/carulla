@@ -1,31 +1,30 @@
-# prefect.yaml
 name: carulla
 prefect-version: 3.0.0
 
-# Definición de los flujos
 flows:
   - name: flujo_diario
     entrypoint: descarga_diaria.py:flujo_diario
 
-# Configuración de despliegue
 deployments:
   - name: descarga_diaria_6am
     flow_name: flujo_diario
     schedule:
       cron: "0 6 * * *"
-    parameters: {}
     work_pool:
-      name: descarga-managed
+      name: carulla-pool
       work_queue_name: default
       job_variables:
+        image: prefecthq/prefect:3-python3.12
         env:
           PREFECT_LOGGING_LEVEL: INFO
-        image: prefecthq/prefect:3-python3.12
         command:
           - /bin/bash
           - -c
           - |
-            pip install --no-cache-dir prefect==3.0.0 requests pandas
+            echo "🔧 Instalando dependencias..."
+            pip install --no-cache-dir requests pandas openpyxl
+            echo " Dependencias instaladas, ejecutando flujo"
             python -m prefect.engine
+
 
 
