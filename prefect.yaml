@@ -1,36 +1,35 @@
-# prefect.yaml (Versión de Diagnóstico y Ejecución Final)
 name: carulla
 prefect-version: 3.0.0
 
 flows:
+  # Define la ubicación del flujo
   - name: flujo_diario
-    entrypoint: descarga_diaria.py:flujo_diario
+    entrypoint: descarga_diaria.py:flujo_diario # Asegúrate que el archivo y la función sean correctos
 
 deployments:
   - name: descarga_diaria_6am
-    # ... (omitido por espacio)
+    # 📌 Configuración de programación (ejemplo: cada día a las 6 AM)
+    schedule: 
+      interval: 86400 # 24 horas en segundos
+      anchor: "06:00" # Hora de inicio (6:00 AM)
+    
+    # 📌 Configuración del Work Pool
     work_pool:
-      name: descarga-managed
+      name: descarga-managed # Work Pool Administrado
       work_queue_name: default
+      
+      # 📌 Variables de Trabajo (Job Variables)
       job_variables:
-        image: raultorres09/carulla-flujo-diario:latest
+        # ➡️ IMAGEN DE DOCKER: Usada por el Work Pool Managed para ejecutar el código.
+        image: raultorres09/carulla-flujo-diario:latest 
+        
         env:
+          # Variables de entorno para el contenedor
           PREFECT_LOGGING_LEVEL: INFO
           PYTHONIOENCODING: utf-8
-        # 🚨 COMANDO DE DIAGNÓSTICO E INSTALACIÓN 🚨
-        command:
-          - /bin/bash
-          - -c
-          - |
-            echo "🔧 Paso 1: Iniciando Instalación..."
-            /usr/local/bin/python -m pip install requests pandas openpyxl && \
-            
-            echo "🔎 Paso 2: Verificando Instalación..."
-            /usr/local/bin/python -c "import pandas; import requests; print('✅ VERIFICACIÓN OK: Pandas y Requests importados con éxito.')" && \
-            
-            echo "🚀 Paso 3: Ejecutando Flujo..."
-            python -m prefect.engine
-            
-            echo "✅ Flujo Finalizado."
+        
+        # ⚠️ Nota: El 'command' de diagnóstico ha sido eliminado, 
+        # ya que las dependencias están en la imagen.
+
 
 
